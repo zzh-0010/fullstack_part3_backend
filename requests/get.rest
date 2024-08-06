@@ -1,1 +1,7 @@
-GET http://localhost:3001/api/persons/1
+### get all, test passed
+GET http://localhost:3001/api/persons/
+### get by id, slightly passed
+GET http://localhost:3001/api/persons/66af681170ecb05c9e7427cb
+
+### get info, test passed
+GET http://localhost:3001/api/info

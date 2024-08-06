@@ -1,6 +1,10 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
+const mongoose = require('mongoose')
+
 const app = express()
 app.use(express.json())
 app.use(cors())
@@ -17,7 +21,10 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :c
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms', {
     skip: (request) => {return request.method === 'POST'}
-}))
+})) 
+
+//连接到数据库
+
 
 let persons = [
     {
@@ -42,32 +49,35 @@ let persons = [
     }
 ]
 
+
+
 const date = new Date()
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 app.get('/api/info', (request, response) => {
-    console.log(request)
-    return (
+    console.log('get info requests: ', request)
+    Person.find({}).then( persons =>{
         response.send(`<p>Phonebook has info for ${persons.length} people
         <br/>
         ${date}
         </p>`)
-    )
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id=Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if(person) {
-        response.json(person)
+    if(request.params) {
+        Person.findById(request.params.id).then(person => {
+            response.json(person)
+        })
     }
     else {
         response.status(404).send()
     }
-    
 })
 
 const randRange = 100000000
@@ -79,10 +89,10 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).send()
 })
 
-const generateId = () => {
+/*const generateId = () => {
     const newId = Math.random() * randRange
     return newId
-}
+} */
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
@@ -94,22 +104,23 @@ app.post('/api/persons', (request, response) => {
             error: 'name or number missing!'
         })
     }
+
     else if(persons.some(ifExist)){
         return response.status(400).json({
             error: 'name already exist!'
         })
     }
-    const person = {
-        id: generateId(),
+    const person = new Person({
         name: body.name,
         number: body.number
-    }
+    })
 
-    persons = persons.concat(person)
-    response.json(person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, ()=> {
     console.log(`Server running at port ${PORT}`)
 })

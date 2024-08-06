@@ -2,6 +2,6 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "Ariana Grande",
-    "number": "111112"
+    "name": "Maiqi Jiao",
+    "number": "010-999999",
 }
