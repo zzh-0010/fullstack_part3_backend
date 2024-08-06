@@ -9,7 +9,8 @@
     "build:ui": "rm -rf build && cd ../../Web/part2/phonebook/ && npm run build && cp -r build ../../../subWeb_backend/part3_phonebook",
     "deploy": "git push heroku main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "lint": "eslint ."
   },
   "author": "zhu",
   "license": "ISC",
@@ -22,6 +23,9 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin-js": "^2.6.1",
+    "eslint": "^9.8.0",
+    "globals": "^15.9.0",
     "nodemon": "^3.1.4"
   }
 }
