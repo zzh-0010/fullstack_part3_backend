@@ -69,40 +69,32 @@ app.get('/api/info', (request, response) => {
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    if(request.params) {
-        Person.findById(request.params.id).then(person => {
-            response.json(person)
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then(person => {
+            if(person) {
+                response.json(person)
+            }
+            else {
+                response.status(404).end()
+            }
         })
-    }
-    else {
-        response.status(404).send()
-    }
+        .catch(error => next(error))
 })
 
 const randRange = 100000000
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndDelete(request.params.id)
         .then(result => {
-            if(result) {
-                response.status(204).send()
-            }
-            else {
-                response.status(400).send()
-            }
+            response.status(204).end()
         })
+        .catch(error => next(error))
 })
 
-/*const generateId = () => {
-    const newId = Math.random() * randRange
-    return newId
-} */
-
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
     console.log(body)
-    const ifExist = (person) => person.name === body.name
 
     if (!body.name || !body.number) {
         return response.status(400).json({
@@ -110,20 +102,49 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    else if(Person.exsists(`{${body.name}}`)){
-        return response.status(400).json({
-            error: 'name already exist!'
+    Person.findOne({name: body.name}).then(existingPerson => {
+        //我这里的逻辑是如果存在则返回错误，与前端的不一致，但是暂时不管他
+        if(existingPerson) {
+            return response.status(400).json({
+                error: 'name already exists!'
+            })
+        }
+        const person = new Person({
+            name: body.name,
+            number: body.number
         })
-    }
-    const person = new Person({
-        name: body.name,
-        number: body.number
-    })
-
-    person.save().then(savedPerson => {
-        response.json(savedPerson)
+        
+        person.save().then(savedPerson => {
+            response.json(savedPerson)
+        }).catch(error => next(error))
     })
 })
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+})
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
+    
+    if(error.name === 'CastError') {
+        return response.status(400).send({error: 'malformatted id'})
+    }
+    next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, ()=> {
