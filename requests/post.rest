@@ -1,7 +1,8 @@
+### finaly!!!! test PASSSSSS!
 POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "Maiqi Jiao",
-    "number": "010-999999",
+    "name": "Arinana Grande",
+    "number": "010-222222"
 }

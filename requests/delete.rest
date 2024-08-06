@@ -1,1 +1,2 @@
-DELETE http://localhost:3001/api/persons/2
+### test passed
+DELETE http://localhost:3001/api/persons/66b1ab4dfe65ae8fe1fd5746

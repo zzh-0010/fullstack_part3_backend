@@ -83,10 +83,15 @@ app.get('/api/persons/:id', (request, response) => {
 const randRange = 100000000
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id=Number(request.params.id)
-    persons = persons.filter(persons => persons.id != id)
-
-    response.status(204).send()
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => {
+            if(result) {
+                response.status(204).send()
+            }
+            else {
+                response.status(400).send()
+            }
+        })
 })
 
 /*const generateId = () => {
@@ -105,7 +110,7 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    else if(persons.some(ifExist)){
+    else if(Person.exsists(`{${body.name}}`)){
         return response.status(400).json({
             error: 'name already exist!'
         })
