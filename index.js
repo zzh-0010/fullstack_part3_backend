@@ -96,6 +96,7 @@ app.post('/api/persons', (request, response, next) => {
     const body = request.body
     console.log(body)
 
+    //标记此处！既然前端已经实现部分功能，后段是否还需要实现该过滤功能呢，应该不需要了啊
     if (!body.name || !body.number) {
         return response.status(400).json({
             error: 'name or number missing!'
@@ -121,14 +122,10 @@ app.post('/api/persons', (request, response, next) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    const body = request.body
+    const {name, number} = request.body
 
-    const person = {
-        name: body.name,
-        number: body.number
-    }
-
-    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+    Person.findByIdAndUpdate(request.params.id, 
+        {name, number}, {new: true, runValidators: true, context: 'query'})
         .then(updatedPerson => {
             response.json(updatedPerson)
         })
@@ -140,6 +137,9 @@ const errorHandler = (error, request, response, next) => {
     
     if(error.name === 'CastError') {
         return response.status(400).send({error: 'malformatted id'})
+    }
+    else if (error.name === 'ValidationError'){
+        return response.status(400).json({error: error.message})
     }
     next(error)
 }

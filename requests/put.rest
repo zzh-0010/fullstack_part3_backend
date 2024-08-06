@@ -3,6 +3,6 @@ PUT http://localhost:3001/api/persons/66b1ea356ae52ecdbf421cad
 Content-Type: application/json
 
 {
-    "name": "thfffffff",
-    "number": "010-999999"
+    "name": "ttpd",
+    "number": "010-9999"
 }
